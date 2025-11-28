@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 15px;
+        }
+        #message-area {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+            text-align: center;
+        }
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        #add-book-section {
+            flex: 1 1 300px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            height: fit-content;
+        }
+        #book-list-section {
+            flex: 2 1 500px;
+        }
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #book-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        #book-table th, #book-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        #book-table th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .status-available { color: green; font-weight: 500;}
+        .status-issued { color: #dc3545; font-weight: 500;}
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Library Management System</h1>
+            <p>Phase 1</p>
+        </header>
+
+        <div id="message-area" role="alert"></div>
+        <div class="content">
+            
+            <section id="add-book-section">
+                <h2>Add New Book</h2>
+                <form id="add-book-form">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" id="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="author">Author</label>
+                        <input type="text" id="author" required>
+                    </div>
+                    <button type="submit">Add Book to Catalog</button>
+                </form>
+                <p style="font-size: 0.8em; color: #666; margin-top: 20px;">
+                    *Data is saved locally in your browser (Local Storage).
+                </p>
+            </section>
+
+            <section id="book-list-section">
+                <h2>Library Stock</h2>
+                <table id="book-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="book-list-body">
+                        </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'library_books_vanilla_demo';
+        const bookListBody = document.getElementById('book-list-body');
+        const addBookForm = document.getElementById('add-book-form');
+        const messageArea = document.getElementById('message-area');
+
+        const initialBooks = [
+            { id: 101, title: 'Introduction to Web', author: 'J. Doe', status: 'Available' },
+            { id: 102, title: 'VS Code Essentials', author: 'A. Smith', status: 'Available' },
+            { id: 103, title: 'Software Engineering', author: 'M. Jones', status: 'Issued' },
+        ];
+
+        let books = [];
+        let messageTimeout;
+
+        function displayMessage(text, type) {
+            if (messageTimeout) {
+                clearTimeout(messageTimeout);
+            }
+            
+            messageArea.textContent = text;
+            messageArea.className = ''; // Clear existing classes
+            messageArea.classList.add(type === 'error' ? 'message-error' : 'message-success');
+            messageArea.style.display = 'block';
+
+            messageTimeout = setTimeout(() => {
+                messageArea.style.display = 'none';
+            }, 8000);
+        }
+        
+        function loadBooks() {
+            const storedBooks = localStorage.getItem(STORAGE_KEY);
+            try {
+                books = storedBooks ? JSON.parse(storedBooks) : initialBooks;
+            } catch (error) {
+                console.error("Error loading books from Local Storage:", error);
+                books = initialBooks;
+            }
+            renderBooks();
+        }
+
+        function saveBooks() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+        }
+
+        function renderBooks() {
+            bookListBody.innerHTML = ''; 
+            
+            if (books.length === 0) {
+                const row = bookListBody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 3;
+                cell.textContent = "The library catalog is currently empty.";
+                cell.style.textAlign = 'center';
+                return;
+            }
+            [...books].reverse().forEach(book => {
+                const row = bookListBody.insertRow();
+                
+                let titleCell = row.insertCell();
+                titleCell.textContent = book.title;
+
+                let authorCell = row.insertCell();
+                authorCell.textContent = book.author;
+                
+                let statusCell = row.insertCell();
+                const statusClass = book.status.toLowerCase().includes('available') ? 'status-available' : 'status-issued';
+                statusCell.className = statusClass;
+                statusCell.textContent = book.status;
+            });
+        }
+
+        function handleAddBook(event) {
+            event.preventDefault();
+
+            messageArea.style.display = 'none';
+
+            const titleInput = document.getElementById('title');
+            const authorInput = document.getElementById('author');
+
+            const newTitle = titleInput.value.trim();
+            const newAuthor = authorInput.value.trim();
+
+            if (newTitle === '' || newAuthor === '') {
+                displayMessage("Please fill in both the title and the author.", 'error');
+                return;
+            }
+            const isDuplicate = books.some(book => 
+                book.title.toLowerCase() === newTitle.toLowerCase() &&
+                book.author.toLowerCase() === newAuthor.toLowerCase()
+            );
+
+            if (isDuplicate) {
+                displayMessage(`Error: The book "${newTitle}" by ${newAuthor} already exists in the catalog.`, 'error');
+                return; 
+            }
+
+            const newId = books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1;
+
+            const newBook = {
+                id: newId,
+                title: newTitle,
+                author: newAuthor,
+                status: 'Available'
+            };
+
+            books.push(newBook);
+            saveBooks();
+            renderBooks();
+
+            displayMessage(`Book "${newBook.title}" added successfully!`, 'success');
+            
+            titleInput.value = '';
+            authorInput.value = '';
+        }
+        addBookForm.addEventListener('submit', handleAddBook);
+        loadBooks(); // Start the application by loading data
+
+    </script>
+</body>
+</html>
