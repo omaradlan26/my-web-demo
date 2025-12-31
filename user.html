@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>User - Library</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>User Panel</h2>
+    <div id="message-area" role="alert"></div>
+    <div id="auth-info"></div>
+    <button id="logout">Sign out</button>
+
+    <section style="margin-top:18px">
+      <h3>Library Stock</h3>
+      <table id="book-table"><thead><tr><th>Title</th><th>Author</th><th>Status</th></tr></thead><tbody id="book-body"></tbody></table>
+    </section>
+  </div>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) location.href='login.html';
+    const user = JSON.parse(localStorage.getItem('user')||'null');
+    document.getElementById('auth-info').textContent = user ? `Signed in as ${user.username} (${user.role})` : '';
+    document.getElementById('logout').addEventListener('click', ()=>{localStorage.removeItem('token'); localStorage.removeItem('user'); location.href='login.html'});
+
+    async function loadBooks(){
+      const res = await fetch('/api/books');
+      const data = await res.json();
+      const body = document.getElementById('book-body'); body.innerHTML='';
+      for(const b of data){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${b.title}</td><td>${b.author}</td><td>${b.status}</td>`;
+        body.appendChild(tr);
+      }
+    }
+    loadBooks();
+  </script>
+</body>
+</html>

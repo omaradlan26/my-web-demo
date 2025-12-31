@@ -1,0 +1,5 @@
+[
+  { "id": 101, "title": "Introduction to Web", "author": "J. Doe", "status": "Available" },
+  { "id": 102, "title": "VS Code Essentials", "author": "A. Smith", "status": "Available" },
+  { "id": 103, "title": "Software Engineering", "author": "M. Jones", "status": "Issued" }
+]
