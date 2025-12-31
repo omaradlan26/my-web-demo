@@ -1,0 +1,35 @@
+openapi: 3.0.0
+info:
+  title: My Web Demo API
+  version: 1.0.0
+paths:
+  /api/books:
+    get:
+      summary: List books
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Add book (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                author:
+                  type: string
+      responses:
+        '201':
+          description: Created
+  /api/auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: OK
