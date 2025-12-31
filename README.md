@@ -27,3 +27,21 @@ No build steps required. Two easy options:
 - To reset data, use the "Clear Local Data" button in the header, or clear localStorage for the site in the browser devtools.
 
 If you'd like, I can run git commands to commit these changes and create a small commit message.
+## Backend (optional)
+
+A simple Express JSON API is included in `server.js`. It persists to `data/books.json` and provides the following endpoints:
+
+- `GET /api/books` — list books
+- `POST /api/books` — add a book ({ title, author })
+- `PUT /api/books/:id` — update a book (e.g., status)
+- `DELETE /api/books/:id` — remove a book
+
+To run the backend:
+
+```bash
+npm install
+npm start
+```
+
+The API will listen on `http://localhost:3000` by default. Use the frontend fetch calls or your HTTP client of choice to interact.
+
