@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin - Library</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Admin Panel</h2>
+    <div id="message-area" role="alert"></div>
+    <button id="logout">Sign out</button>
+    <section style="margin-top:18px">
+      <h3>Add Book</h3>
+      <form id="add-form">
+        <label>Title</label>
+        <input id="title" required>
+        <label>Author</label>
+        <input id="author" required>
+        <button type="submit">Add Book</button>
+      </form>
+    </section>
+
+    <section style="margin-top:18px">
+      <h3>Books</h3>
+      <table id="book-table"><thead><tr><th>Title</th><th>Author</th><th>Status</th><th></th></tr></thead><tbody id="book-body"></tbody></table>
+    </section>
+  </div>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) location.href='login.html';
+    const msg = document.getElementById('message-area');
+    const logoutBtn = document.getElementById('logout');
+    logoutBtn.addEventListener('click', ()=>{localStorage.removeItem('token'); localStorage.removeItem('user'); location.href='login.html'});
+
+    async function loadBooks(){
+      const res = await fetch('/api/books');
+      const data = await res.json();
+      const body = document.getElementById('book-body'); body.innerHTML='';
+      for(const b of data){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${b.title}</td><td>${b.author}</td><td>${b.status}</td><td><button data-id="${b.id}" class="del">Delete</button></td>`;
+        body.appendChild(tr);
+      }
+      document.querySelectorAll('.del').forEach(btn=> btn.addEventListener('click', async e => {
+        const id = e.target.dataset.id; if(!confirm('Delete?')) return;
+        await fetch('/api/books/'+id, { method:'DELETE', headers: { Authorization: 'Bearer '+token } });
+        loadBooks();
+      }));
+    }
+
+    document.getElementById('add-form').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const title = document.getElementById('title').value.trim();
+      const author = document.getElementById('author').value.trim();
+      try{
+        const res = await fetch('/api/books', { method:'POST', headers:{'content-type':'application/json', Authorization: 'Bearer '+token}, body: JSON.stringify({title,author}) });
+        if(!res.ok) throw new Error((await res.json()).error||'Error');
+        msg.textContent='Added'; msg.className='message-success'; msg.style.display='block';
+        loadBooks();
+      }catch(err){ msg.textContent=err.message; msg.className='message-error'; msg.style.display='block'; }
+    });
+
+    loadBooks();
+  </script>
+</body>
+</html>

@@ -26,14 +26,23 @@ function displayMessage(text, type = 'success') {
 }
 
 function loadBooks() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    try {
-        books = stored ? JSON.parse(stored) : initialBooks.slice();
-    } catch (e) {
-        console.error('Failed reading storage', e);
-        books = initialBooks.slice();
-    }
-    renderBooks();
+    // Prefer backend API if available
+    fetch('/api/books').then(r => {
+        if (!r.ok) throw new Error('no-api');
+        return r.json();
+    }).then(data => {
+        books = data || [];
+        renderBooks();
+    }).catch(() => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        try {
+            books = stored ? JSON.parse(stored) : initialBooks.slice();
+        } catch (e) {
+            console.error('Failed reading storage', e);
+            books = initialBooks.slice();
+        }
+        renderBooks();
+    });
 }
 
 function saveBooks() {
@@ -111,7 +120,7 @@ function updateClock() {
     clockEl.textContent = now.toLocaleString();
 }
 
-addBookForm.addEventListener('submit', handleAddBook);
+if (addBookForm) addBookForm.addEventListener('submit', handleAddBook);
 searchInput?.addEventListener('input', handleSearch);
 themeToggle?.addEventListener('click', toggleTheme);
 clearStorageBtn?.addEventListener('click', clearStorage);

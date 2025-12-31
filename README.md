@@ -45,3 +45,14 @@ npm start
 
 The API will listen on `http://localhost:3000` by default. Use the frontend fetch calls or your HTTP client of choice to interact.
 
+## Frontend
+
+The frontend is served statically from the project root. Open `index.html` in the browser or start the backend and visit `http://localhost:3000` to access the landing page.
+
+Default admin credentials (created automatically on first run):
+
+- username: `admin`
+- password: `admin123`
+
+Use `login.html` to sign in. Admins are redirected to `admin.html`; regular users go to `user.html` after sign-in.
+

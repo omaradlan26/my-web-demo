@@ -24,23 +24,21 @@
 
         <div id="message-area" role="alert"></div>
         <div class="content">
-            
-            <section id="add-book-section">
-                <h2>Add New Book</h2>
-                <form id="add-book-form">
+            <section id="get-started">
+                <h2>Get Started</h2>
+                <p>Register to create a user account, or <a href="login.html">sign in</a> if you already have one.</p>
+                <form id="register-form">
                     <div class="form-group">
-                        <label for="title">Title</label>
-                        <input type="text" id="title" required>
+                        <label for="reg-username">Username</label>
+                        <input type="text" id="reg-username" required>
                     </div>
                     <div class="form-group">
-                        <label for="author">Author</label>
-                        <input type="text" id="author" required>
+                        <label for="reg-password">Password</label>
+                        <input type="password" id="reg-password" required>
                     </div>
-                    <button type="submit">Add Book to Catalog</button>
+                    <button type="submit">Create Account</button>
                 </form>
-                <p style="font-size: 0.8em; color: #666; margin-top: 20px;">
-                    *Data is saved locally in your browser (Local Storage).
-                </p>
+                <p style="font-size: 0.9em; color: #666; margin-top: 12px;">Or <a href="login.html">Sign in</a> — admin user: <strong>admin / admin123</strong></p>
             </section>
 
             <section id="book-list-section">
@@ -54,12 +52,31 @@
                         </tr>
                     </thead>
                     <tbody id="book-list-body">
-                        </tbody>
+                    </tbody>
                 </table>
             </section>
         </div>
     </div>
 
+    <script>
+    // registration logic (uses backend if available)
+    const regForm = document.getElementById('register-form');
+    const msg = document.getElementById('message-area');
+    if (regForm) regForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        msg.style.display='none';
+        const username = document.getElementById('reg-username').value.trim();
+        const password = document.getElementById('reg-password').value;
+        try {
+            const res = await fetch('/api/auth/register', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({username,password}) });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Registration failed');
+            msg.textContent = 'Account created. Please sign in.'; msg.className='message-success'; msg.style.display='block';
+        } catch (err) {
+            msg.textContent = err.message; msg.className='message-error'; msg.style.display='block';
+        }
+    });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
