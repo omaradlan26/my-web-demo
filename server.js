@@ -84,7 +84,29 @@ function requireRole(role) {
 
 app.get('/api/books', async (req, res) => {
   const books = await readData();
-  res.json(books);
+  const q = (req.query.q || '').toLowerCase().trim();
+  if (!q) return res.json(books);
+  const filtered = books.filter(b => (b.title||'').toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q));
+  res.json(filtered);
+});
+
+// Admin: list users (no passwords returned)
+app.get('/api/users', authMiddleware, requireRole('admin'), async (req, res) => {
+  const users = await readUsers();
+  res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role })));
+});
+
+// Admin: change user role
+app.put('/api/users/:id/role', authMiddleware, requireRole('admin'), async (req, res) => {
+  const id = Number(req.params.id);
+  const { role } = req.body || {};
+  if (!role) return res.status(400).json({ error: 'Missing role' });
+  const users = await readUsers();
+  const idx = users.findIndex(u => u.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  users[idx].role = role;
+  await writeUsers(users);
+  res.json({ id: users[idx].id, username: users[idx].username, role: users[idx].role });
 });
 
 app.post('/api/books', authMiddleware, requireRole('admin'), async (req, res) => {

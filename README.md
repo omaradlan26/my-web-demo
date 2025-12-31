@@ -56,3 +56,10 @@ Default admin credentials (created automatically on first run):
 
 Use `login.html` to sign in. Admins are redirected to `admin.html`; regular users go to `user.html` after sign-in.
 
+### New admin endpoints
+
+- `GET /api/users` — list users (admin only)
+- `PUT /api/users/:id/role` — change a user's role (admin only)
+
+Admin UI (`admin.html`) now includes a Users table where you can change roles.
+
