@@ -1,8 +1,29 @@
-📚 Library Management System (Phase 1 Demo)This repository contains the Phase 1 running demo for a simplified Library Management System. This implementation uses Vanilla HTML, CSS, and JavaScript with Browser Local Storage for persistent data, ensuring the demo is lightweight, easy to run, and has zero external dependencies.
-✨ Features Included (Phase 1)Book Management (Create/Read): Users can view the existing book catalog and add new books.Data Persistence: Book data is automatically saved to the user's Browser Local Storage and is retained across page reloads.Input Validation: The system performs a case-insensitive check to prevent adding a book with the same Title and Author twice.Dynamic Messaging: Success and error messages are displayed directly above the main content area (the "dashboard") for enhanced user feedback.
-🚀 Getting StartedThis demo requires no installation or web server setup.PrerequisitesA modern web browser (Chrome, Firefox, Edge, etc.)VS Code (Recommended for easy editing and running)Running the ApplicationSave the Code: Save the provided HTML code into a single file named index.html.Open in Browser:Easiest Method: Simply double-click the index.html file. It will open directly in your web browser.VS Code Method (Recommended for Development):Install the Live Server extension by Ritwick Dey.Right-click index.html inside VS Code and select "Open with Live Server."💡 Project StructureThe project is contained entirely within a single file:FileDescriptionindex.htmlContains all the necessary HTML structure, CSS styling, and JavaScript logic. This serves as the complete, runnable application.
-🔑 Key Implementation Details1. Data Handling (Local Storage)The application uses the browser's localStorage object to simulate a database.Key: library_books_vanilla_demoMechanism: The loadBooks() function retrieves data on startup, and the saveBooks() function is called every time a book is successfully added, ensuring persistence.2. Duplicate Validation (JavaScript)The core validation logic is implemented in the handleAddBook function.The JavaScript uses Array.prototype.some() to check the existing books array:JavaScriptconst isDuplicate = books.some(book => 
-    book.title.toLowerCase() === newTitle.toLowerCase() &&
-    book.author.toLowerCase() === newAuthor.toLowerCase()
-);
-If isDuplicate is true, a specific error message is displayed to the user using the displayMessage function.3. Message DisplayA dedicated <div id="message-area"> in the HTML is dynamically managed by the displayMessage(text, type) JavaScript function. This allows for controlled, timed feedback (success/error banners) instead of using intrusive browser alerts.
+# Library Management System (Phase 1 Demo)
+
+Small demo app using vanilla HTML, CSS and JavaScript. Data is persisted in Browser Local Storage so there are no external dependencies.
+
+**Quick features:**
+- Add books (Title + Author)
+- Search by title or author
+- Local persistence via Local Storage
+- Theme toggle (light / dark)
+- Live clock and clear-local-data button
+
+**Files:**
+- [index.html](index.html) — main HTML that loads the app UI
+- [script.js](script.js) — application logic (storage, search, theme)
+- [styles.css](styles.css) — basic styling and theme variables
+
+## Run locally
+
+No build steps required. Two easy options:
+
+1. Open directly: double-click `index.html` to open it in your browser.
+2. With VS Code: install the Live Server extension and choose "Open with Live Server" on `index.html`.
+
+## Notes for development
+
+- Data key: `library_books_vanilla_demo` (stored in Local Storage)
+- To reset data, use the "Clear Local Data" button in the header, or clear localStorage for the site in the browser devtools.
+
+If you'd like, I can run git commands to commit these changes and create a small commit message.
